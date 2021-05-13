@@ -39,12 +39,12 @@ async function migrate() {
 
 	console.log('All good. Ready to start...\n');
 
-	var testCase;
+	var issue;
 
 	let index = 1;
-	while(testCase = await tm4jApi.getNextTestCase()) {
-		console.log(`#${index++} Test case ${testCase.key}:`);
-		var issueKey = tm4jApi.getIssueKey(testCase);
+	while(issue = await tm4jApi.getNextTestCase()) {
+		console.log(`#${index++} Issue ${issue.key}:`);
+		var issueKey = issue.key; //tm4jApi.getIssueKey(issue);
 		if(!issueKey) {
 			console.log('\tNo issue key has been found. Skipping...');
 			continue;
@@ -56,8 +56,8 @@ async function migrate() {
 		}
 		console.log(`\tFound ${attachments.length} attachments. Downloading attachments from issue ${issueKey}...`);
 		await jiraApi.downloadAttachments(issueKey, attachments);
-		console.log(`\tUploading attachments to test case ${testCase.key}...`);
-		await tm4jApi.uploadAttachments(issueKey, testCase.key);
+		console.log(`\tUploading attachments to issue ${issue.key}...`);
+		await tm4jApi.uploadAttachments(issueKey, issue.key);
 	}
 	console.log('Migration complete!');
 }

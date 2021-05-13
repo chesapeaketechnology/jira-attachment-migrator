@@ -20,13 +20,17 @@ class TM4JApi {
 	}
 
 	async validate() {
-		const response = await fetch(this._getTestUrl(),
+		const response = await fetch(this._getMyselfUrl(),
 			HttpUtils.getAuthHeader(this.jiraSettings.user, this.jiraSettings.password));
 		const isValid = response.status == 200;
 		if(!isValid) {
 			console.log(await response.text());
 		}
 		return isValid;
+	}
+
+	_getMyselfUrl() {
+		return `${this.jiraSettings.url}/rest/api/2/myself`;
 	}
 
 	async getNextTestCase() {
@@ -50,29 +54,29 @@ class TM4JApi {
 	async uploadAttachments(issueKey, testCaseKey) {
 		const imagesDir = `./images/${issueKey}`;
 		const files = fs.readdirSync(imagesDir);
-		for(let file of files) {
-	    	await this._uploadAttachmentToTestCase(testCaseKey, `${imagesDir}/${file}`);
-		}
-	}
-
-	async _uploadAttachmentToTestCase(testCaseKey, filePath) {
 		const formData = new FormData();
-		formData.append('file', fs.createReadStream(filePath));
 
+		for(let file of files) {
+			var filePath = `${imagesDir}/${file}`;
+			formData.append('file', fs.createReadStream(filePath));
+		}
+
+		// In order to protect against XSRF attacks, because this method accepts multipart/form-data, it has XSRF protection on it.
+		// This means you must submit a header of X-Atlassian-Token: no-check with the request, otherwise it will be blocked. 
 		const reqHeadersObj = {
 			method: 'POST',
 			body: formData,
-			headers: formData.getHeaders()
+			headers: formData.getHeaders({ 'X-Atlassian-Token': 'no-check' })
 		}
 
 		const authHeader = HttpUtils.getAuthHeader(this.jiraSettings.user, this.jiraSettings.password);
 		reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
 
-		const response = await fetch(`${this.jiraSettings.url}/rest/atm/1.0/testcase/${testCaseKey}/attachments`, reqHeadersObj);
-		const isValid = response.status == 201;
-		if(!isValid) {
+		const response = await fetch(`${this.jiraSettings.url}/rest/api/2/issue/${issueKey}/attachments`, reqHeadersObj);
+		const isError = "errorMessages" in response;
+		if(isError) {
 			console.log(await response.text());
-			throw `Error uploading attachment ${filePath} to test case ${testCaseKey}`;
+			throw `Error uploading attachment ${filePath} to test case ${issueKey}`;
 		}
 	}
 
@@ -93,15 +97,11 @@ class TM4JApi {
 			console.log(await response.text());
 			throw 'Error retrieving test cases';
 		}
-		this.testCases = await response.json();
-	}
-
-	_getTestUrl() {
-		return encodeURI(`${this.jiraSettings.url}/rest/atm/1.0/testcase/search?query=status = Deprecated&fields=id,key`);
+		this.testCases = (await response.json()).issues;
 	}
 
 	_getTestCaseSearchUrl(page) {
-		return encodeURI(`${this.jiraSettings.url}/rest/atm/1.0/testcase/search?query=projectKey = \"${this.jiraSettings.projectKey}\"&fields=key,customFields&startAt=${this.pageSize * this.currentPage}&maxResults=${this.pageSize}`);
+		return encodeURI(`${this.jiraSettings.url}/rest/api/2/search?jql=project = \"${this.jiraSettings.projectKey}\"&fields=key&startAt=${this.pageSize * this.currentPage}&maxResults=${this.pageSize}`);
 	}
 }
 
