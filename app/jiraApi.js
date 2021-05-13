@@ -19,8 +19,15 @@ class JiraApi {
 	}
 
 	async downloadAttachments(issueKey, attachments) {
+		const imagesDir = `./images/${issueKey}`;
+		if(fs.existsSync(imagesDir)) {
+			// Images had already been downloaded, no need to download again
+			return;
+		}
+		fs.mkdirSync(imagesDir);
+
 		for(let attachment of attachments) {
-			await this._downloadAttachment(issueKey, attachment);
+			await this._downloadAttachment(issueKey, attachment, imagesDir);
 		}
 	}
 
@@ -42,18 +49,11 @@ class JiraApi {
 		return `${this.jiraSettings.url}/rest/api/2/issue/${issueKey}?fields=attachment`;
 	}
 
-	async _downloadAttachment(issueKey, attachment) {
-		const imagesDir = `./images/${issueKey}`;
-		if(fs.existsSync(imagesDir)) {
-			// Images had already been downloaded, no need to download again
-			return;
-		}
-		fs.mkdirSync(imagesDir);
-
+	async _downloadAttachment(issueKey, attachment, imagesDir) {
 		const response = await fetch(attachment.content, HttpUtils.getAuthHeader(this.jiraSettings.user, this.jiraSettings.password));
 
-        await new Promise((resolve, reject) => {
-        	const dest = fs.createWriteStream(`${imagesDir}/${attachment.filename}`);
+		await new Promise((resolve, reject) => {
+			const dest = fs.createWriteStream(`${imagesDir}/${attachment.filename}`);
 			response.body.pipe(dest);
 			response.body.on('error', err => {
 				reject(err);
@@ -64,7 +64,7 @@ class JiraApi {
 			dest.on('error', err => {
 				reject(err);
 			});
-    	});
+		});
 	}
 }
 
