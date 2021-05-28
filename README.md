@@ -1,5 +1,9 @@
-# README #
+Fork of [SmartBear's tm4j-attachment-migrator](https://bitbucket.org/smartbeartm4j/tm4j-attachment-migrator) to address
+a bug with migrating multiple attachments for an issue and add support for migrating attachment for non-test issues.
 
+* * *
+
+# README #
 Migrates attachments from Jira issues to test cases in *Zephyr Scale*. The Jira issues where the attachments will be migrated from can be of any type, including Zephyr or Xray test cases.
 
 ## Requirements ##
@@ -37,4 +41,4 @@ Example:
 
 4) Run the migration by executing: ``npm start``.
 
-All the process will be logged on the console and the images automatically uploaded to Zephyr Scale.
+All the progess will be logged on the console and the images automatically uploaded to Zephyr Scale.
