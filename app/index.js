@@ -34,8 +34,8 @@ async function migrate() {
 	}
 	
 	console.log('Creating directory to store downloaded attachments...');
-	deleteFolderRecursive('./images');
-	fs.mkdirSync('./images');
+	deleteFolderRecursive('./attachments');
+	fs.mkdirSync('./attachments');
 
 	console.log('All good. Ready to start...\n');
 

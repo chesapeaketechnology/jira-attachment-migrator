@@ -12,8 +12,8 @@ Migrates attachments from Jira issues to test cases in *Zephyr Scale*. The Jira 
 ## How to use ##
 1) Configure the file ``settings.json`` with:
 
-* ``sourceJira``: this is the Jira instance where the images will be exported. The ```url```, ```user``` and ```password``` to connect to it must be provided.
-* ``targetJira``: this is the Jira instance where Zephyr Scale is installed and where the images will be imported. Besides the ```url```, ```user``` and ```password``` attributes, you must provide the name of a test case custom field with the issue key for retrieving the attachments and the project key of the test cases.
+* ``sourceJira``: this is the Jira instance where the attachments will be exported. The ```url```, ```user``` and ```password``` to connect to it must be provided.
+* ``targetJira``: this is the Jira instance where Zephyr Scale is installed and where the attachments will be imported. Besides the ```url```, ```user``` and ```password``` attributes, you must provide the name of a test case custom field with the issue key for retrieving the attachments and the project key of the test cases.
 
 Both source and target Jira can either be the same or different Jira instances.
 
@@ -41,4 +41,4 @@ Example:
 
 4) Run the migration by executing: ``npm start``.
 
-All the progess will be logged on the console and the images automatically uploaded to Zephyr Scale.
+All the progess will be logged on the console and the attachments automatically uploaded to Zephyr Scale.

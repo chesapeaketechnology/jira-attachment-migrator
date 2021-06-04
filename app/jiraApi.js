@@ -19,7 +19,7 @@ class JiraApi {
 	}
 
 	async downloadAttachments(issueKey, attachments) {
-		const imagesDir = `./images/${issueKey}`;
+		const imagesDir = `./attachments/${issueKey}`;
 		if(fs.existsSync(imagesDir)) {
 			// Images had already been downloaded, no need to download again
 			return;

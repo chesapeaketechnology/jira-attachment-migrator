@@ -48,7 +48,7 @@ class TM4JApi {
 	}
 
 	async uploadAttachments(issueKey, testCaseKey) {
-		const imagesDir = `./images/${issueKey}`;
+		const imagesDir = `./attachments/${issueKey}`;
 		const files = fs.readdirSync(imagesDir);
 		for(let file of files) {
 	    	await this._uploadAttachmentToTestCase(testCaseKey, `${imagesDir}/${file}`);
