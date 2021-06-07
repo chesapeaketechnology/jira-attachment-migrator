@@ -1,7 +1,7 @@
 {
   "name": "tm4j-attachment-migrator",
   "version": "1.0.0",
-  "description": "Utility for migrating attachments from Jira issues to 'TM4J - Test Management for Jira' test cases.",
+  "description": "Utility for migrating attachments from Jira issues to 'TM4J - Test Management for Jira' issues.",
   "scripts": {
     "start": "node app/index.js"
   },
