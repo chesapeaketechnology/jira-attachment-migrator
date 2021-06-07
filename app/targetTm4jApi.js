@@ -126,15 +126,13 @@ class TargetTM4JApi {
   }
 
   _getTestCaseSearchUrl() {
-    return encodeURI(
-      `${
-        this.jiraSettings.url
-      }/rest/atm/1.0/testcase/search?query=projectKey = \"${
-        this.jiraSettings.projectKey
-      }\"&fields=key,customFields&startAt=${
-        this.pageSize * this.currentPage
-      }&maxResults=${this.pageSize}`
-    );
+    const baseUrl = `${this.jiraSettings.url}/rest/atm/1.0/testcase`;
+    const query = `search?query=projectKey = \"${this.jiraSettings.projectKey}\"`;
+    const fields = "&fields=key,customFields";
+    const startAt = `&startAt=${this.pageSize * this.currentPage}`;
+    const maxResults = `&maxResults=${this.pageSize}`;
+    const url = `${baseUrl}/${query}${fields}${startAt}${maxResults}`;
+    return encodeURI(url);
   }
 }
 
