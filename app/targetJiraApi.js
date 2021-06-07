@@ -93,14 +93,39 @@ class TargetJiraApi {
     return this.testCases.length === 0;
   }
 
-  async _loadPage(pageNumber) {
-    const response = await fetch(
-      this._getTestCaseSearchUrl(pageNumber),
-      HttpUtils.getAuthHeader(
-        this.jiraSettings.user,
-        this.jiraSettings.password
-      )
+  async _loadPage() {
+    var query = `project = ${this.jiraSettings.projectKey}`;
+    if (
+      this.jiraSettings.issueKeyStart != null &&
+      this.jiraSettings.issueKeyEnd != null
+    ) {
+      query += ` AND (issuekey >= ${this.jiraSettings.issueKeyStart} AND issuekey <= ${this.jiraSettings.issueKeyEnd})`;
+    }
+
+    const searchParams = {
+      jql: query,
+      startAt: this.pageSize * this.currentPage,
+      maxResults: this.pageSize,
+    };
+
+    const reqHeadersObj = {
+      method: "POST",
+      body: JSON.stringify(searchParams),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    };
+
+    const authHeader = HttpUtils.getAuthHeader(
+      this.jiraSettings.user,
+      this.jiraSettings.password
     );
+
+    reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
+
+    const response = await fetch(this._getTestCaseSearchUrl(), reqHeadersObj);
+
     const isValid = response.status == 200;
     if (!isValid) {
       console.log(await response.text());
@@ -118,13 +143,7 @@ class TargetJiraApi {
   }
 
   _getTestCaseSearchUrl() {
-    return encodeURI(
-      `${this.jiraSettings.url}/rest/api/2/search?jql=project = \"${
-        this.jiraSettings.projectKey
-      }\"&fields=key&startAt=${this.pageSize * this.currentPage}&maxResults=${
-        this.pageSize
-      }`
-    );
+    return `${this.jiraSettings.url}/rest/api/2/search`;
   }
 }
 
