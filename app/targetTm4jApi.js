@@ -10,6 +10,14 @@ class TargetTM4JApi {
     this.currentPage = 0;
     this.firstPageLoaded = false;
     this.pageSize = 200;
+    if (this.jiraSettings.issueKeyStart && this.jiraSettings.issueKeyEnd) {
+      this.originalIssueKeyStart = this._parseOriginalIssueKey(
+        this.jiraSettings.issueKeyStart
+      );
+      this.originalIssueKeyEnd = this._parseOriginalIssueKey(
+        this.jiraSettings.issueKeyEnd
+      );
+    }
   }
 
   getIssueKey(testCase) {
@@ -107,12 +115,33 @@ class TargetTM4JApi {
         this.jiraSettings.password
       )
     );
+
     const isValid = response.status == 200;
     if (!isValid) {
       console.log(await response.text());
       throw "Error retrieving test cases";
     }
-    this.testCases = await response.json();
+
+    const testCases = await response.json();
+
+    this.testCases = [];
+    for (const test of testCases) {
+      if (test && test.customFields) {
+        var originalIssueKey = this._parseOriginalIssueKey(
+          test.customFields[this.jiraSettings.issueKeyCustomField]
+        );
+        if (
+          originalIssueKey >= this.originalIssueKeyStart &&
+          originalIssueKey <= this.originalIssueKeyEnd
+        ) {
+          this.testCases.push(test);
+        }
+      }
+    }
+  }
+
+  _parseOriginalIssueKey(str) {
+    return parseInt(str.replace(/^\D+/g, ""));
   }
 
   _getTestUrl() {
