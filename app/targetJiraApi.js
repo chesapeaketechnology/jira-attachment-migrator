@@ -108,8 +108,8 @@ class TargetJiraApi {
   async _loadPage() {
     var query = `project = ${this.jiraSettings.projectKey}`;
     if (
-      this.jiraSettings.issueKeyStart != null &&
-      this.jiraSettings.issueKeyEnd != null
+      this.jiraSettings.issueKeyStart !== "" &&
+      this.jiraSettings.issueKeyEnd !== ""
     ) {
       query += ` AND (issuekey >= ${this.jiraSettings.issueKeyStart} AND issuekey <= ${this.jiraSettings.issueKeyEnd})`;
     }

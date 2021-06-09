@@ -10,7 +10,10 @@ class TargetTM4JApi {
     this.currentPage = 0;
     this.firstPageLoaded = false;
     this.pageSize = 200;
-    if (this.jiraSettings.issueKeyStart && this.jiraSettings.issueKeyEnd) {
+    if (
+      this.jiraSettings.issueKeyStart !== "" &&
+      this.jiraSettings.issueKeyEnd !== ""
+    ) {
       this.originalIssueKeyStart = this._parseOriginalIssueKey(
         this.jiraSettings.issueKeyStart
       );
