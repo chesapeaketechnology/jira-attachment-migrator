@@ -93,7 +93,7 @@ class TargetTM4JApi {
     reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
 
     const response = await fetch(
-      _getAttachmentsUrl(testCaseKey),
+      this._getAttachmentsUrl(testCaseKey),
       reqHeadersObj
     );
     const isValid = response.status == 201;

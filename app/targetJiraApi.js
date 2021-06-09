@@ -53,14 +53,24 @@ class TargetJiraApi {
   }
 
   async uploadAttachments(issueKey) {
+    const attachedFiles = await this._getAttachedFiles(issueKey);
     const attachmentsDir = `./attachments/${issueKey}`;
     const files = fs.readdirSync(attachmentsDir);
-    const formData = new FormData();
-
-    for (let file of files) {
-      var filePath = `${attachmentsDir}/${file}`;
-      formData.append("file", fs.createReadStream(filePath));
+    let newFilesToUpload = [];
+    if (attachedFiles.length > 0) {
+      newFilesToUpload = files.filter((file) => !attachedFiles.includes(file));
     }
+    for (let file of newFilesToUpload) {
+      await this._uploadAttachmentToTestCase(
+        issueKey,
+        `${attachmentsDir}/${file}`
+      );
+    }
+  }
+
+  async _uploadAttachmentToTestCase(issueKey, filePath) {
+    const formData = new FormData();
+    formData.append("file", fs.createReadStream(filePath));
 
     // In order to protect against XSRF attacks, because this method accepts multipart/form-data, it has XSRF protection on it.
     // This means you must submit a header of X-Atlassian-Token: no-check with the request, otherwise it will be blocked.
@@ -75,10 +85,12 @@ class TargetJiraApi {
       this.jiraSettings.password
     );
     reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
-
-    const response = await fetch(_getAttachmentsUrl(issueKey), reqHeadersObj);
-    const isError = "errorMessages" in response;
-    if (isError) {
+    const response = await fetch(
+      this._getAttachmentsUrl(issueKey),
+      reqHeadersObj
+    );
+    const isValid = response.status == 200;
+    if (!isValid) {
       console.log(await response.text());
       throw `Error uploading attachment ${filePath} to test case ${issueKey}`;
     }
@@ -125,13 +137,34 @@ class TargetJiraApi {
     reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
 
     const response = await fetch(this._getTestCaseSearchUrl(), reqHeadersObj);
-
-    const isValid = response.status == 200;
-    if (!isValid) {
-      console.log(await response.text());
-      throw "Error retrieving test cases";
+    switch (response.status) {
+      case 200:
+        this.testCases = (await response.json()).issues;
+        break;
+      case 400:
+        this.testCases = [];
+        break;
+      default:
+        console.log(await response.text());
+        throw "Error retrieving test cases";
     }
-    this.testCases = (await response.json()).issues;
+  }
+
+  async _getAttachedFiles(issueKey) {
+    const response = await fetch(
+      this._getIssueUrl(issueKey),
+      HttpUtils.getAuthHeader(
+        this.jiraSettings.user,
+        this.jiraSettings.password
+      )
+    );
+
+    const data = await response.json();
+    const attachments = data.fields.attachment;
+
+    return attachments
+      ? attachments.map((attachment) => attachment.filename)
+      : [];
   }
 
   _getMyselfUrl() {
@@ -140,6 +173,10 @@ class TargetJiraApi {
 
   _getAttachmentsUrl(issueKey) {
     return `${this.jiraSettings.url}/rest/api/2/issue/${issueKey}/attachments`;
+  }
+
+  _getIssueUrl(issueKey) {
+    return `${this.jiraSettings.url}/rest/api/2/issue/${issueKey}`;
   }
 
   _getTestCaseSearchUrl() {
