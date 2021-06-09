@@ -61,9 +61,14 @@ class TargetTM4JApi {
   }
 
   async uploadAttachments(issueKey, testCaseKey) {
+    const attachedFiles = await this._getAttachedFiles(testCaseKey);
     const attachmentsDir = `./attachments/${issueKey}`;
     const files = fs.readdirSync(attachmentsDir);
-    for (let file of files) {
+    let newFilesToUpload = [];
+    if (attachedFiles.length > 0) {
+      newFilesToUpload = files.filter((file) => !attachedFiles.includes(file));
+    }
+    for (let file of newFilesToUpload) {
       await this._uploadAttachmentToTestCase(
         testCaseKey,
         `${attachmentsDir}/${file}`
@@ -138,6 +143,22 @@ class TargetTM4JApi {
         }
       }
     }
+  }
+
+  async _getAttachedFiles(testCaseKey) {
+    const response = await fetch(
+      this._getAttachmentsUrl(testCaseKey),
+      HttpUtils.getAuthHeader(
+        this.jiraSettings.user,
+        this.jiraSettings.password
+      )
+    );
+
+    const attachments = await response.json();
+
+    return attachments
+      ? attachments.map((attachment) => attachment.filename)
+      : [];
   }
 
   _parseOriginalIssueKey(str) {
