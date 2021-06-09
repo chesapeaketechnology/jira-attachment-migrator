@@ -10,6 +10,8 @@ class TargetTM4JApi {
     this.currentPage = 0;
     this.firstPageLoaded = false;
     this.pageSize = 200;
+    this.originalIssueKeyStart = -1;
+    this.originalIssueKeyEnd = -1;
     if (
       this.jiraSettings.issueKeyStart !== "" &&
       this.jiraSettings.issueKeyEnd !== ""
@@ -130,19 +132,22 @@ class TargetTM4JApi {
       throw "Error retrieving test cases";
     }
 
-    const testCases = await response.json();
-
-    this.testCases = [];
-    for (const test of testCases) {
-      if (test && test.customFields) {
-        var originalIssueKey = this._parseOriginalIssueKey(
-          test.customFields[this.jiraSettings.issueKeyCustomField]
-        );
-        if (
-          originalIssueKey >= this.originalIssueKeyStart &&
-          originalIssueKey <= this.originalIssueKeyEnd
-        ) {
-          this.testCases.push(test);
+    if (this.originalIssueKeyStart === -1 && this.originalIssueKeyEnd === -1) {
+      this.testCases = await response.json();
+    } else {
+      this.testCases = [];
+      const testCases = await response.json();
+      for (const test of testCases) {
+        if (test && test.customFields) {
+          var originalIssueKey = this._parseOriginalIssueKey(
+            test.customFields[this.jiraSettings.issueKeyCustomField]
+          );
+          if (
+            originalIssueKey >= this.originalIssueKeyStart &&
+            originalIssueKey <= this.originalIssueKeyEnd
+          ) {
+            this.testCases.push(test);
+          }
         }
       }
     }
