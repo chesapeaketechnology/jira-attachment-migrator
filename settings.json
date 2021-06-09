@@ -9,6 +9,8 @@
 		"user": "",
 		"password": "",
 		"projectKey": "",
+		"issueKeyStart": "",
+		"issueKeyEnd": "",
 		"issueKeyCustomField": ""
 	}
 }
