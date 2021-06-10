@@ -17,7 +17,7 @@ function deleteFolderRecursive(path) {
   }
 }
 
-function parseOriginalIssueKey(str) {
+function parseIssueKey(str) {
   return parseInt(str.replace(/^\D+/g, ""));
 }
 
@@ -39,6 +39,10 @@ async function migrateIssues(
     return;
   }
 
+  console.log("Creating directory to store downloaded attachments...");
+  deleteFolderRecursive("./attachments");
+  fs.mkdirSync("./attachments");
+
   console.log(`All good. Ready to start ${title} migration...\n`);
 
   var issue;
@@ -49,7 +53,7 @@ async function migrateIssues(
       console.log(`\tNo ${desc} key has been found. Skipping...`);
       continue;
     }
-    const key = parseOriginalIssueKey(issueKey);
+    const key = parseIssueKey(issueKey);
     if (key >= issueKeyStart && key <= issueKeyEnd) {
       console.log(`#${index++} ${desc} ${issue.key}:`);
       var attachments = await sourceJiraApi.getAttachments(issueKey);
@@ -83,19 +87,15 @@ async function migrate() {
     return;
   }
 
-  console.log("Creating directory to store downloaded attachments...");
-  deleteFolderRecursive("./attachments");
-  fs.mkdirSync("./attachments");
-
   let issueKeyStart = Number.MIN_SAFE_INTEGER;
   let issueKeyEnd = Number.MAX_SAFE_INTEGER;
 
   if (settings.sourceJira.issueKeyStart !== "") {
-    issueKeyStart = parseOriginalIssueKey(settings.sourceJira.issueKeyStart);
+    issueKeyStart = parseIssueKey(settings.sourceJira.issueKeyStart);
   }
 
   if (settings.sourceJira.issueKeyEnd !== "") {
-    issueKeyEnd = parseOriginalIssueKey(settings.sourceJira.issueKeyEnd);
+    issueKeyEnd = parseIssueKey(settings.sourceJira.issueKeyEnd);
   }
 
   var isZephyrScale = true;

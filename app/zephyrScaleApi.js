@@ -14,10 +14,9 @@ class ZephyrScaleApi {
 
   getIssueKey(issue, isZephyrScale) {
     if (isZephyrScale) {
-      if (!issue.customFields) {
-        return;
+      if (issue.customFields) {
+        return issue.customFields[this.jiraSettings.issueKeyCustomField];
       }
-      return issue.customFields[this.jiraSettings.issueKeyCustomField];
     } else {
       return issue.key;
     }
@@ -58,12 +57,17 @@ class ZephyrScaleApi {
 
   async uploadAttachments(issueKey, testCaseKey, isZephyrScale) {
     let targetKey = isZephyrScale ? testCaseKey : issueKey;
-    const attachedFiles = await this._getAttachedFiles(targetKey);
+    const attachedFiles = await this._getAttachedFiles(
+      targetKey,
+      isZephyrScale
+    );
     const attachmentsDir = `./attachments/${issueKey}`;
     const files = fs.readdirSync(attachmentsDir);
     let newFilesToUpload = [];
     if (attachedFiles.length > 0) {
       newFilesToUpload = files.filter((file) => !attachedFiles.includes(file));
+    } else {
+      newFilesToUpload = files;
     }
     for (let file of newFilesToUpload) {
       await this._uploadAttachmentToIssue(
@@ -90,12 +94,12 @@ class ZephyrScaleApi {
     );
     reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
 
-    if (isZephyrScale) {
+    if (!isZephyrScale) {
       Object.assign(reqHeadersObj.headers, { "X-Atlassian-Token": "no-check" });
     }
 
     const response = await fetch(
-      this._getAttachmentsUrl(issueKey),
+      this._getUploadAttachmentsUrl(issueKey, isZephyrScale),
       reqHeadersObj
     );
 
@@ -156,6 +160,12 @@ class ZephyrScaleApi {
   }
 
   _getAttachmentsUrl(key, isZephyrScale) {
+    return isZephyrScale
+      ? `${this.jiraSettings.url}/rest/atm/1.0/testcase/${key}/attachments`
+      : `${this.jiraSettings.url}/rest/api/2/issue/${key}`;
+  }
+
+  _getUploadAttachmentsUrl(key, isZephyrScale) {
     return isZephyrScale
       ? `${this.jiraSettings.url}/rest/atm/1.0/testcase/${key}/attachments`
       : `${this.jiraSettings.url}/rest/api/2/issue/${key}/attachments`;
