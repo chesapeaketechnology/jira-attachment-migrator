@@ -2,15 +2,15 @@
 	"sourceJira": {
 		"url": "",
 		"user": "",
-		"password": ""
+		"password": "",
+		"issueKeyStart": "",
+		"issueKeyEnd": ""
 	},
 	"targetJira": {
 		"url": "",
 		"user": "",
 		"password": "",
 		"projectKey": "",
-		"issueKeyStart": "",
-		"issueKeyEnd": "",
 		"issueKeyCustomField": ""
 	}
 }
