@@ -29,7 +29,7 @@ Example:
 		"user": "myself",
 		"password": "mypass",
 		"issueKeyStart": "PROJ-###",
-    		"issueKeyEnd": "PROJ-###"
+    	"issueKeyEnd": "PROJ-###"
 	},
 	"targetJira": {
 		"url": "http://myserver2.com/jira",
