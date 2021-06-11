@@ -3,17 +3,18 @@ const HttpUtils = require("./httpUtils.js");
 const fs = require("fs");
 const FormData = require("form-data");
 
-class ZephyrScaleApi {
-  constructor(jiraSettings) {
+class TargetJiraApi {
+  constructor(jiraSettings, isZephyrScale) {
     this.jiraSettings = jiraSettings;
     this.currentIssueIndex = 0;
     this.currentPage = 0;
     this.firstPageLoaded = false;
     this.pageSize = 200;
+    this.isZephyrScale = isZephyrScale;
   }
 
-  getIssueKey(issue, isZephyrScale) {
-    if (isZephyrScale) {
+  getIssueKey(issue) {
+    if (this.isZephyrScale) {
       if (issue.customFields) {
         return issue.customFields[this.jiraSettings.issueKeyCustomField];
       }
@@ -22,9 +23,9 @@ class ZephyrScaleApi {
     }
   }
 
-  async validate(isZephyrScale) {
+  async validate() {
     const response = await fetch(
-      this._getTestUrl(isZephyrScale),
+      this._getTestUrl(),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
         this.jiraSettings.password
@@ -37,13 +38,13 @@ class ZephyrScaleApi {
     return isValid;
   }
 
-  async getNextIssue(isZephyrScale) {
+  async getNextIssue() {
     if (!this.issues) {
-      await this._loadNextIssuePage(isZephyrScale);
+      await this._loadNextIssuePage();
     }
 
     if (this.currentIssueIndex >= this.issues.length) {
-      let isEof = await this._loadNextIssuePage(isZephyrScale);
+      let isEof = await this._loadNextIssuePage();
       if (isEof) {
         return;
       }
@@ -55,12 +56,9 @@ class ZephyrScaleApi {
     return issue;
   }
 
-  async uploadAttachments(issueKey, testCaseKey, isZephyrScale) {
-    let targetKey = isZephyrScale ? testCaseKey : issueKey;
-    const attachedFiles = await this._getAttachedFiles(
-      targetKey,
-      isZephyrScale
-    );
+  async uploadAttachments(issueKey, testCaseKey) {
+    let targetKey = this.isZephyrScale ? testCaseKey : issueKey;
+    const attachedFiles = await this._getAttachedFiles(targetKey);
     const attachmentsDir = `./attachments/${issueKey}`;
     const files = fs.readdirSync(attachmentsDir);
     let newFilesToUpload = [];
@@ -72,13 +70,12 @@ class ZephyrScaleApi {
     for (let file of newFilesToUpload) {
       await this._uploadAttachmentToIssue(
         targetKey,
-        `${attachmentsDir}/${file}`,
-        isZephyrScale
+        `${attachmentsDir}/${file}`
       );
     }
   }
 
-  async _uploadAttachmentToIssue(issueKey, filePath, isZephyrScale) {
+  async _uploadAttachmentToIssue(issueKey, filePath) {
     const formData = new FormData();
     formData.append("file", fs.createReadStream(filePath));
 
@@ -94,16 +91,16 @@ class ZephyrScaleApi {
     );
     reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
 
-    if (!isZephyrScale) {
+    if (!this.isZephyrScale) {
       Object.assign(reqHeadersObj.headers, { "X-Atlassian-Token": "no-check" });
     }
 
     const response = await fetch(
-      this._getUploadAttachmentsUrl(issueKey, isZephyrScale),
+      this._getUploadAttachmentsUrl(issueKey),
       reqHeadersObj
     );
 
-    const isValid = isZephyrScale
+    const isValid = this.isZephyrScale
       ? response.status == 201
       : response.status == 200;
 
@@ -113,18 +110,18 @@ class ZephyrScaleApi {
     }
   }
 
-  async _loadNextIssuePage(isZephyrScale) {
+  async _loadNextIssuePage() {
     if (this.issues) {
       this.currentPage++;
     }
     if (this.issues && this.issues.length < this.pageSize) return true;
-    await this._loadPage(isZephyrScale);
+    await this._loadPage();
     return this.issues.length === 0;
   }
 
-  async _loadPage(isZephyrScale) {
+  async _loadPage() {
     const response = await fetch(
-      this._getIssueSearchUrl(isZephyrScale),
+      this._getIssueSearchUrl(),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
         this.jiraSettings.password
@@ -137,14 +134,14 @@ class ZephyrScaleApi {
       throw "Error retrieving test cases";
     }
 
-    this.issues = isZephyrScale
+    this.issues = this.isZephyrScale
       ? await response.json()
       : (await response.json()).issues;
   }
 
-  async _getAttachedFiles(issueKey, isZephyrScale) {
+  async _getAttachedFiles(issueKey) {
     const response = await fetch(
-      this._getAttachmentsUrl(issueKey, isZephyrScale),
+      this._getAttachmentsUrl(issueKey),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
         this.jiraSettings.password
@@ -152,35 +149,35 @@ class ZephyrScaleApi {
     );
 
     var data = await response.json();
-    const attachments = isZephyrScale ? data : data.fields.attachment;
+    const attachments = this.isZephyrScale ? data : data.fields.attachment;
 
     return attachments
       ? attachments.map((attachment) => attachment.filename)
       : [];
   }
 
-  _getAttachmentsUrl(key, isZephyrScale) {
-    return isZephyrScale
+  _getAttachmentsUrl(key) {
+    return this.isZephyrScale
       ? `${this.jiraSettings.url}/rest/atm/1.0/testcase/${key}/attachments`
       : `${this.jiraSettings.url}/rest/api/2/issue/${key}`;
   }
 
-  _getUploadAttachmentsUrl(key, isZephyrScale) {
-    return isZephyrScale
+  _getUploadAttachmentsUrl(key) {
+    return this.isZephyrScale
       ? `${this.jiraSettings.url}/rest/atm/1.0/testcase/${key}/attachments`
       : `${this.jiraSettings.url}/rest/api/2/issue/${key}/attachments`;
   }
 
-  _getTestUrl(isZephyrScale) {
-    return isZephyrScale
+  _getTestUrl() {
+    return this.isZephyrScale
       ? encodeURI(
           `${this.jiraSettings.url}/rest/atm/1.0/testcase/search?query=status = Deprecated&fields=id,key`
         )
       : `${this.jiraSettings.url}/rest/api/2/myself`;
   }
 
-  _getIssueSearchUrl(isZephyrScale) {
-    return isZephyrScale
+  _getIssueSearchUrl() {
+    return this.isZephyrScale
       ? encodeURI(
           `${
             this.jiraSettings.url
@@ -200,4 +197,4 @@ class ZephyrScaleApi {
   }
 }
 
-module.exports = ZephyrScaleApi;
+module.exports = TargetJiraApi;

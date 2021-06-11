@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const HttpUtils = require("./httpUtils.js");
 const fs = require("fs");
 
-class JiraApi {
+class SourceJiraApi {
   constructor(jiraSettings) {
     this.jiraSettings = jiraSettings;
   }
@@ -87,4 +87,4 @@ class JiraApi {
   }
 }
 
-module.exports = JiraApi;
+module.exports = SourceJiraApi;

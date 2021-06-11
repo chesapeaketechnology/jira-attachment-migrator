@@ -1,6 +1,6 @@
 const settings = require("../settings.json");
 const SourceJiraApi = require("./sourceJiraApi.js");
-const ZephyrScaleApi = require("./zephyrScaleApi.js");
+const TargetJiraApi = require("./targetJiraApi.js");
 const fs = require("fs");
 
 function deleteFolderRecursive(path) {
@@ -29,7 +29,7 @@ async function migrateIssues(
 ) {
   var title = isZephyrScale ? "Zephyr Scale" : "Jira";
   var desc = isZephyrScale ? "test case" : "issue";
-  var zephyrScaleApi = new ZephyrScaleApi(settings.targetJira);
+  var zephyrScaleApi = new TargetJiraApi(settings.targetJira, isZephyrScale);
 
   console.log(`Validating connection to target ${title}...`);
   if (!(await zephyrScaleApi.validate())) {
