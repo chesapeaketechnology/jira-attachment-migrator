@@ -1,7 +1,7 @@
 {
-  "name": "tm4j-attachment-migrator",
+  "name": "zephyr-scale-attachment-migrator",
   "version": "1.0.0",
-  "description": "Utility for migrating attachments from Jira issues to 'TM4J - Test Management for Jira' test cases.",
+  "description": "Utility for migrating attachments from Jira issues to Zephyr Scale test cases.",
   "scripts": {
     "start": "node app/index.js"
   },
@@ -11,5 +11,8 @@
   "dependencies": {
     "form-data": "2.3.2",
     "node-fetch": "2.1.2"
+  },
+  "devDependencies": {
+    "prettier": "2.3.1"
   }
 }

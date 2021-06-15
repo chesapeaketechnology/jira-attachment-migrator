@@ -2,7 +2,9 @@
 	"sourceJira": {
 		"url": "",
 		"user": "",
-		"password": ""
+		"password": "",
+		"issueKeyStart": "",
+		"issueKeyEnd": ""
 	},
 	"targetJira": {
 		"url": "",
