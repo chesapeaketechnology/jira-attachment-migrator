@@ -66,11 +66,7 @@ async function migrateIssues(
       );
       await sourceJiraApi.downloadAttachments(issueKey, attachments);
       console.log(`\tUploading attachments to ${desc} ${issue.key}...`);
-      await zephyrScaleApi.uploadAttachments(
-        issueKey,
-        issue.key,
-        isZephyrScale
-      );
+      await zephyrScaleApi.uploadAttachments(issueKey, issue.key);
     }
   }
   console.log(`${title} migration complete!`);

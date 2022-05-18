@@ -64,6 +64,13 @@ class TargetJiraApi {
     let newFilesToUpload = [];
     if (attachedFiles.length > 0) {
       newFilesToUpload = files.filter((file) => !attachedFiles.includes(file));
+      files
+        .filter((file) => attachedFiles.includes(file))
+        .forEach((file) => {
+          console.log(
+            `\tWARNING: '${file}' is already attached - skipping this upload`
+          );
+        });
     } else {
       newFilesToUpload = files;
     }
