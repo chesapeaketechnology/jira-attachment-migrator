@@ -7,6 +7,8 @@ a bug with migrating multiple attachments for an issue and add support for migra
 
 Migrates attachments from Jira issues to test cases in _Zephyr Scale_. The Jira issues where the attachments will be migrated from can be of any type, including Zephyr or Xray test cases.
 
+**NOTE**: this migration script will **not** reupload attachments; meaning, if an attachment with the same file name exists - it will skip the upload
+
 ## Requirements
 
 - NodeJs 8.x
@@ -40,6 +42,10 @@ Example:
 	}
 }
 ```
+
+- ⚠ If you see an error similar to that of:
+  - "The value 'XXX' does not exist for the field 'project'."
+  - Please try leaving `issueKeyCustomField` blank
 
 2. Open a terminal window, and navigate to the directory where the repository has been cloned to: `cd <zephyr-scale-file-converter-dir>`.
 
