@@ -28,7 +28,8 @@ class TargetJiraApi {
       this._getTestUrl(),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
-        this.jiraSettings.password
+        this.jiraSettings.password,
+        this.jiraSettings.token
       )
     );
     const isValid = response.status == 200;
@@ -94,7 +95,8 @@ class TargetJiraApi {
 
     const authHeader = HttpUtils.getAuthHeader(
       this.jiraSettings.user,
-      this.jiraSettings.password
+      this.jiraSettings.password,
+      this.jiraSettings.token
     );
     reqHeadersObj.headers.Authorization = authHeader.headers.Authorization;
 
@@ -131,7 +133,8 @@ class TargetJiraApi {
       this._getIssueSearchUrl(),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
-        this.jiraSettings.password
+        this.jiraSettings.password,
+        this.jiraSettings.token
       )
     );
 
@@ -151,7 +154,8 @@ class TargetJiraApi {
       this._getAttachmentsUrl(issueKey),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
-        this.jiraSettings.password
+        this.jiraSettings.password,
+        this.jiraSettings.token
       )
     );
 

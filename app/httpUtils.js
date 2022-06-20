@@ -1,9 +1,10 @@
 module.exports = {
-  getAuthHeader: (user, password) => {
+  getAuthHeader: (user, password, token) => {
     return {
       headers: {
-        Authorization:
-          "Basic " + Buffer.from(`${user}:${password}`).toString("base64"),
+        Authorization: token
+          ? "Bearer " + token
+          : "Basic " + Buffer.from(`${user}:${password}`).toString("base64"),
       },
     };
   },

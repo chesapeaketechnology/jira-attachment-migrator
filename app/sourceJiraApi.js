@@ -12,7 +12,8 @@ class SourceJiraApi {
       this._getIssueUrl(issueKey),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
-        this.jiraSettings.password
+        this.jiraSettings.password,
+        this.jiraSettings.token
       )
     );
     const isValid = response.status == 200;
@@ -42,7 +43,8 @@ class SourceJiraApi {
       this._getMyselfUrl(),
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
-        this.jiraSettings.password
+        this.jiraSettings.password,
+        this.jiraSettings.token
       )
     );
     const isValid = response.status == 200;
@@ -65,7 +67,8 @@ class SourceJiraApi {
       attachment.content,
       HttpUtils.getAuthHeader(
         this.jiraSettings.user,
-        this.jiraSettings.password
+        this.jiraSettings.password,
+        this.jiraSettings.token
       )
     );
 

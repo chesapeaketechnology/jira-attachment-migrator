@@ -1,16 +1,18 @@
 {
-	"sourceJira": {
-		"url": "",
-		"user": "",
-		"password": "",
-		"issueKeyStart": "",
-		"issueKeyEnd": ""
-	},
-	"targetJira": {
-		"url": "",
-		"user": "",
-		"password": "",
-		"projectKey": "",
-		"issueKeyCustomField": ""
-	}
+  "sourceJira": {
+    "url": "",
+    "user": "",
+    "password": "",
+    "token": "",
+    "issueKeyStart": "",
+    "issueKeyEnd": ""
+  },
+  "targetJira": {
+    "url": "",
+    "user": "",
+    "password": "",
+    "token": "",
+    "projectKey": "",
+    "issueKeyCustomField": ""
+  }
 }

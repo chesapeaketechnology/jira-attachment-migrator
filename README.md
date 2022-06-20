@@ -30,6 +30,7 @@ Example:
 		"url": "http://myserver.com/jira",
 		"user": "myself",
 		"password": "mypass",
+		"token": "", // Can use API token instead of username & password if desired (may be required by some servers)
 		"issueKeyStart": "PROJ-###",
     	"issueKeyEnd": "PROJ-###"
 	},
@@ -37,15 +38,16 @@ Example:
 		"url": "http://myserver2.com/jira",
 		"user": "anotheruser",
 		"password": "anotherpass",
+		"token": "", // Can use API token instead of username & password if desired (may be required by some servers)
 		"projectKey": "PROJ",
 		"issueKeyCustomField": "Original Issue Key"
 	}
 }
 ```
 
-- ⚠ If you see an error similar to that of:
-  - "The value 'XXX' does not exist for the field 'project'."
-  - Please try leaving `issueKeyCustomField` blank
+⚠ If you see an error similar to "The value 'XXX' does not exist for the field 'project'", Please try leaving `issueKeyCustomField` blank
+⚠ If you get 401 errors but you know your username and password are correct, try generating an API key and using that
+instead. You can generate a token in your Jira profile by selecting Personal Access Tokens.
 
 2. Open a terminal window, and navigate to the directory where the repository has been cloned to: `cd <zephyr-scale-file-converter-dir>`.
 
@@ -53,6 +55,6 @@ Example:
 
 4. Run the migration by executing: `npm start`.
 
-All the progess will be logged on the console and the attachments automatically uploaded to Zephyr Scale.
+All progress will be logged on the console and the attachments automatically uploaded to Zephyr Scale.
 
-Note: when updating repo, please run `npx prettier --write .` before commiting
+Note: when updating repo, please run `npx prettier --write .` before committing.
